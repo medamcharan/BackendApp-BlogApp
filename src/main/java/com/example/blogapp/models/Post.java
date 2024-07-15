@@ -1,25 +1,42 @@
 package com.example.blogapp.models;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import org.springframework.data.annotation.Id;
+/* import org.springframework.data.annotation.Id;
+ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Document(collection = "posts")
+ @Document(collection = "posts")*/
+ @Entity
+@Table(name = "posts")
 public class Post {
-    @Id
-    private String id;
+     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private String title;
     private String content;
     private boolean approved;
 
-    @DBRef
+    //@DBRef
+    // Replace @DBRef with @ManyToOne and @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+   
+    
     private User user;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int  id) {
         this.id = id;
     }
 
