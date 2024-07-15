@@ -1,0 +1,254 @@
+Contents of ./BlogappApplication.java:
+package com.example.blogapp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BlogappApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(BlogappApplication.class, args);
+	}
+
+}
+
+
+Contents of ./controllers\PostController.java:
+package com.example.blogapp.controllers;
+
+import java.util.List;
+import com.example.blogapp.models.Post;
+import com.example.blogapp.services.PostService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/posts")
+public class PostController {
+    @Autowired
+    private PostService postService;
+
+    @PostMapping
+    public Post createPost(@RequestBody Post post) {
+        return postService.createPost(post);
+    }
+
+    @PutMapping("/{postId}/approve")
+    public void approvePost(@PathVariable int postId) {
+        postService.approvePost(postId);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Post>> getAllPosts() {
+        List<Post> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
+
+    // Other endpoints for post management
+}
+}
+
+Contents of ./controllers\UserController.java:
+package com.example.blogapp.controllers;
+
+import com.example.blogapp.models.User;
+import com.example.blogapp.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    @Autowired
+    private UserService userService;
+
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
+    }
+
+    // Other endpoints for user management
+}
+
+Contents of ./models\Post.java:
+package com.example.blogapp.models;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "posts")
+public class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int postId;
+    private String title;
+    private String content;
+    private boolean approved;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public int getPostId() {
+        return postId;
+    }
+
+    public void setPostId(int postId) {
+        this.postId = postId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    // Constructors, getters, and setters
+    
+}
+
+Contents of ./models\User.java:
+package com.example.blogapp.models;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int userId;
+    private String username;
+    private String email;
+    public int getUserId() {
+        return userId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+   
+    
+}
+
+Contents of ./repositories\PostRepository.java:
+package com.example.blogapp.repositories;
+
+import com.example.blogapp.models.Post;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PostRepository extends JpaRepository<Post, Integer> {
+}
+
+Contents of ./repositories\UserRepository.java:
+package com.example.blogapp.repositories;
+
+import com.example.blogapp.models.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Integer> {
+}
+
+Contents of ./services\PostService.java:
+package com.example.blogapp.services;
+
+import java.util.List;
+
+import com.example.blogapp.models.Post;
+import com.example.blogapp.models.User;
+import com.example.blogapp.repositories.PostRepository;
+import com.example.blogapp.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PostService {
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public Post createPost(Post post) {
+        if (post.getUser() != null && post.getUser().getUserId() != 0) {
+            User user = userRepository.findById(post.getUser().getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            post.setUser(user);
+        }
+        return postRepository.save(post);
+    }
+
+    public void approvePost(int postId) {
+        Post post = postRepository.findById(postId).orElseThrow();
+        post.setApproved(true);
+        postRepository.save(post);
+    }
+
+    public List<Post> getAllPosts() {
+        return postRepository.findAll();
+    }
+
+    // Other methods for post management
+}
+
+Contents of ./services\UserService.java:
+package com.example.blogapp.services;
+
+import com.example.blogapp.models.User;
+import com.example.blogapp.repositories.UserRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+
+    // Other methods for user management
+}
+
