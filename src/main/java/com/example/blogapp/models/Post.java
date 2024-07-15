@@ -27,7 +27,7 @@ public class Post {
     //@DBRef
     // Replace @DBRef with @ManyToOne and @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
    
     
     private User user;
