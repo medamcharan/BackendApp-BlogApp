@@ -8,7 +8,7 @@ jobs:
   build-and-push:
     name: push docker image to docker hub
     runs-on: ubuntu-latest
-    environment: DockerHub # Add this line to specify the environment
+    environment: DOCKERHUB_TOKEN# Add this line to specify the environment
     steps:
       - uses: actions/checkout@v2
 
