@@ -11,7 +11,7 @@ This command:
 - Maps port 80 of the host to port 80 of the container (-p 80:80)
 
 ```
-docker run -d -p 8081:80 nginx
+docker run -d -p 8081:80 nginxXx
 ```
 
 This command will:
